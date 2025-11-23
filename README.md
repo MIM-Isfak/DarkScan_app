@@ -40,10 +40,10 @@ A web-based vulnerability scanner built with Java Spring Boot, Thymeleaf, and Bo
 - git clone https://github.com/MIM-Isfak/Java-Vulnerability-Scanner-app.git
 
 2. **Navigate to the project folder:**
-cd java-Vulnerability Scanner app
+- cd Java-Vulnerability-Scanner-app
 
 3. **Start the server:**
-./mvnw spring-boot:run(for windows) or mvn
+- ./mvnw spring-boot:run(for windows) or mvn
 
 4. **Open your browser:**  
 [http://localhost:8080](http://localhost:8080)
