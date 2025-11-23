@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Vulnerability Scanner Home</title>
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <style>
+        body { background: #f7f7fa; }
+        .container { margin-top: 40px; max-width: 500px; background: #fff; padding: 30px; border-radius: 10px; box-shadow: 0 3px 12px #bbb8; }
+        h1 { font-weight: 700; margin-bottom: 30px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="text-center">Java Vulnerability Scanner</h1>
+        <form method="post" action="/scan" enctype="multipart/form-data">
+            <div class="mb-3">
+                <label for="scanType" class="form-label">Select Scan:</label>
+                <select name="scanType" id="scanType" class="form-select" onchange="toggleInput(this.value)">
+                    <option value="file">File</option>
+                    <option value="website">Website</option>
+                </select>
+            </div>
+            <div id="fileInput" class="mb-3">
+                <label for="file" class="form-label">Select File:</label>
+                <input type="file" id="file" name="file" class="form-control"/>
+            </div>
+            <div id="urlInput" class="mb-3" style="display:none;">
+                <label for="inputValue" class="form-label">Enter website URL:</label>
+                <input type="text" id="inputValue" name="inputValue" class="form-control"/>
+            </div>
+            <button type="submit" class="btn btn-primary w-100">Start Scan</button>
+        </form>
+    </div>
+
+    <script>
+    function toggleInput(val) {
+        document.getElementById('fileInput').style.display = (val === 'file') ? '' : 'none';
+        document.getElementById('urlInput').style.display = (val === 'website') ? '' : 'none';
+    }
+    </script>
+</body>
+</html>
