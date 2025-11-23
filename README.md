@@ -46,7 +46,7 @@ A web-based vulnerability scanner built with Java Spring Boot, Thymeleaf, and Bo
 - ./mvnw spring-boot:run(for windows) or mvn
 
 4. **Open your browser:**  
-[http://localhost:8080](http://localhost:8080)
+[http://localhost:8080]
 
 ---
 
