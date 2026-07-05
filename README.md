@@ -8,6 +8,13 @@
 > Scan files and websites for common security vulnerabilities — built as a portfolio project by a 2nd-year CS student.
 
 ---
+## Screenshots
+
+![Home Page](Screenshot%202026-07-05%20224559.png)
+
+![File Scan Result](Screenshot%202026-07-05%20224648.png)
+
+![SSRF Protection](Screenshot%202026-07-05%20224748.png)
 
 ## What it does
 
