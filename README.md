@@ -66,7 +66,7 @@
 
 ```bash
 git clone https://github.com/MIM-Isfak/DarkScan.git
-cd DarkScan
+cd DarkScan_app
 ./mvnw spring-boot:run
 ```
 
@@ -79,11 +79,12 @@ Browser
 ↓
 HomeController (Spring MVC)
 ↓
-FileScanner         WebScanner
-↓                    ↓
-ScanResult ←————————————┘
+FileScanner ←→ WebScanner
+↓               ↓
+└──→ ScanResult ←┘
 ↓
 Thymeleaf (result.html)
+
 ---
 
 ## Known limitations
