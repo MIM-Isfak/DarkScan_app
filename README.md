@@ -75,15 +75,24 @@ Open → http://localhost:8080
 ---
 
 ## Architecture
+
+```text
 Browser
-↓
+   │
+   ▼
 HomeController (Spring MVC)
-↓
-FileScanner ←→ WebScanner
-↓               ↓
-└──→ ScanResult ←┘
-↓
-Thymeleaf (result.html)
+   │
+   ├──────────────────┐
+   ▼                  ▼
+FileScanner      WebScanner
+   │                  │
+   └────────┬─────────┘
+            ▼
+        ScanResult
+            │
+            ▼
+   Thymeleaf (result.html)
+```
 
 ---
 
