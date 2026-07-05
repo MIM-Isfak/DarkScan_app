@@ -1,79 +1,90 @@
-# Java Vulnerability Scanner Web App
+# [DarkScan]
+### A security analysis tool built with Java & Spring Boot
 
-A web-based vulnerability scanner built with Java Spring Boot, Thymeleaf, and Bootstrap. This tool scans uploaded files for sensitive information and checks websites for important security headers.
+![Java](https://img.shields.io/badge/Java-17-orange?style=flat-square&logo=java)
+![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.5.7-brightgreen?style=flat-square&logo=springboot)
+![License](https://img.shields.io/badge/license-MIT-blue?style=flat-square)
 
----
-
-## 🚀 Features
-
-- **File Scan**
-  - Warns about sensitive filenames (.env, .git, config.php)
-  - Alerts if file size exceeds 10MB
-  - Scans contents for passwords, API keys, or secrets
-
-- **Website Scan**
-  - Checks for missing security headers:
-    - Content-Security-Policy
-    - X-Frame-Options
-    - Strict-Transport-Security
-    - X-Content-Type-Options
-  - Warns if site does not use HTTPS
-
-- **Modern UI**
-  - Responsive design using Bootstrap
-  - Simple, clean workflow
+> Scan files and websites for common security vulnerabilities — built as a portfolio project by a 2nd-year CS student.
 
 ---
 
-## 🛠 Technologies Used
+## What it does
 
-- Java (17+)
-- Spring Boot (MVC)
-- Thymeleaf for web templates
-- Bootstrap (or custom CSS for UI)
+**File Scan**
+- Detects sensitive filenames (`.env`, `id_rsa`, `.pem`, `.key`, `config.php`)
+- Scans file contents line-by-line for leaked secrets:
+  - AWS Access Keys / Secret Keys
+  - Hardcoded passwords
+  - API keys & Bearer tokens
+  - GitHub personal access tokens
+  - Private key blocks
 
----
-
-## ⚡ How to Run
-
-1. **Clone the repository:**
-- git clone https://github.com/MIM-Isfak/Java-Vulnerability-Scanner-app.git
-
-2. **Navigate to the project folder:**
-- cd Java-Vulnerability-Scanner-app
-
-3. **Start the server:**
-- ./mvnw spring-boot:run(for windows) or mvn
-
-4. **Open your browser:**  
-- (http://localhost:8080)
+**Website Scan**
+- Checks for missing HTTP security headers:
+  - `Content-Security-Policy`
+  - `X-Frame-Options`
+  - `Strict-Transport-Security` (HSTS)
+  - `X-Content-Type-Options`
+- Warns if site uses plain HTTP instead of HTTPS
+- Detects `Server` header information leakage
+- **SSRF protection** — blocks scanning of localhost, loopback, private network, and cloud metadata addresses (`169.254.169.254`)
 
 ---
 
-## 🎯 Learning Outcomes
+## Security fixes included
 
-- Built a full-stack Java web app from scratch
-- Implemented file and network IO from user input
-- Detected basic security vulnerabilities and secrets
-- Designed user-friendly web UI for security tools
-
----
-
-## 🏗️ Future Improvements
-
-- Export scan results to file (CSV or text)
-- Add more file scan rules and advanced regex
-- Support for user authentication
-- Show scan history per user
-- Improved error handling
+| Issue | Fix |
+|-------|-----|
+| XSS via filename/URL in results | `th:text` auto-escaping (Thymeleaf) |
+| SSRF via user-supplied URL | Host resolved & checked before any HTTP request |
+| Null filename crash | Null-safe check before processing |
+| README claiming features that didn't exist | Rewrote README to match actual code |
 
 ---
 
-## 🙌 Acknowledgements
+## Tech stack
 
-- [Spring Boot](https://spring.io/projects/spring-boot)
-- [Bootstrap](https://getbootstrap.com/)
-- [Thymeleaf](https://www.thymeleaf.org/)
+| Layer | Technology |
+|-------|-----------|
+| Language | Java 17 |
+| Framework | Spring Boot 3.5.7 |
+| Template Engine | Thymeleaf |
+| Build Tool | Maven |
+| Styling | Pure CSS (dark theme, no frameworks) |
 
 ---
 
+## Run locally
+
+```bash
+git clone https://github.com/MIM-Isfak/DarkScan.git
+cd DarkScan
+./mvnw spring-boot:run
+```
+
+Open → http://localhost:8080
+
+---
+
+## Architecture
+Browser
+↓
+HomeController (Spring MVC)
+↓
+FileScanner         WebScanner
+↓                    ↓
+ScanResult ←————————————┘
+↓
+Thymeleaf (result.html)
+---
+
+## Known limitations
+
+- Secret detection is regex-based — can miss obfuscated secrets
+- No persistent storage or user accounts
+- Website scan checks headers only, not full security audit
+
+---
+
+*Built by [@MIM-Isfak](https://github.com/MIM-Isfak)*
