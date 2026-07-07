@@ -79,18 +79,14 @@ Open → http://localhost:8080
 ```text
 Browser
    │
-   ▼
 HomeController (Spring MVC)
    │
    ├──────────────────┐
-   ▼                    ▼
 FileScanner      WebScanner
-   │                    │
    └────────┬─────────┘
              ▼
         ScanResult
              │
-             ▼
    Thymeleaf (result.html)
 ```
 
