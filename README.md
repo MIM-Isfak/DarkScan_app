@@ -83,14 +83,14 @@ Browser
 HomeController (Spring MVC)
    │
    ├──────────────────┐
-   ▼                  ▼
+   ▼                    ▼
 FileScanner      WebScanner
-   │                  │
+   │                    │
    └────────┬─────────┘
-            ▼
+             ▼
         ScanResult
-            │
-            ▼
+             │
+             ▼
    Thymeleaf (result.html)
 ```
 
