@@ -5,7 +5,7 @@
 ![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.5.7-brightgreen?style=flat-square&logo=springboot)
 ![License](https://img.shields.io/badge/license-MIT-blue?style=flat-square)
 
-> Scan files and websites for common security vulnerabilities — built as a portfolio project by a 2nd-year CS student.
+> Scan files and websites for common security vulnerabilities.
 
 ---
 ## Screenshots
