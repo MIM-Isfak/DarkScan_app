@@ -103,5 +103,3 @@ FileScanner      WebScanner
 - Website scan checks headers only, not full security audit
 
 ---
-
-*Built by [@MIM-Isfak](https://github.com/MIM-Isfak)*
