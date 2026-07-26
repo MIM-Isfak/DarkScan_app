@@ -10,11 +10,11 @@
 ---
 ## Screenshots
 
-![Home Page](Screenshot%202026-07-05%20224559.png)
+![Home Page](docs/Screenshot%202026-07-05%20224559.png)
 
-![File Scan Result](Screenshot%202026-07-05%20224648.png)
+![File Scan Result](docs/Screenshot%202026-07-05%20224648.png)
 
-![SSRF Protection](Screenshot%202026-07-05%20224748.png)
+![SSRF Protection](docs/Screenshot%202026-07-05%20224748.png)
 
 ## What it does
 
