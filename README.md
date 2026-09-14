@@ -65,7 +65,7 @@
 ## Run locally
 
 ```bash
-git clone https://github.com/MIM-Isfak/DarkScan.git
+git clone https://github.com/MIM-Isfak/DarkScan_app.git
 cd DarkScan_app
 ./mvnw spring-boot:run
 ```
