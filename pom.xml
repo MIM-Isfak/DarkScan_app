@@ -11,8 +11,8 @@
 	<groupId>com.isfak</groupId>
 	<artifactId>vulnerablescanner</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>vulnerablescanner</name>
-	<description>Demo project for Spring Boot</description>
+	<name>DarkScan</name>
+<description>Security scanner for detecting exposed secrets and common website security issues</description>
 	<url/>
 	<licenses>
 		<license/>
