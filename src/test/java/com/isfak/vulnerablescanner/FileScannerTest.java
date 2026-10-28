@@ -40,7 +40,7 @@ class FileScannerTest {
                 result.getFindings()
                         .stream()
                         .anyMatch(finding ->
-                                finding.contains("AWS Access Key ID"))
+                                finding.getMessage().contains("AWS Access Key ID"))
         );
     }
 
@@ -61,7 +61,7 @@ class FileScannerTest {
                 result.getFindings()
                         .stream()
                         .anyMatch(finding ->
-                                finding.contains("GitHub personal access token"))
+                                finding.getMessage().contains("GitHub personal access token"))
         );
     }
 
@@ -87,7 +87,7 @@ class FileScannerTest {
                 result.getFindings()
                         .stream()
                         .anyMatch(finding ->
-                                finding.contains("Private key block"))
+                                finding.getMessage().contains("Private key block"))
         );
     }
 
@@ -108,7 +108,7 @@ class FileScannerTest {
                 result.getFindings()
                         .stream()
                         .anyMatch(finding ->
-                                finding.contains("Hardcoded password/secret"))
+                                finding.getMessage().contains("Hardcoded password/secret"))
         );
     }
 
@@ -129,7 +129,7 @@ class FileScannerTest {
                 result.getFindings()
                         .stream()
                         .anyMatch(finding ->
-                                finding.contains("sensitive file type"))
+                                finding.getMessage().contains("sensitive file type"))
         );
     }
 
@@ -172,7 +172,7 @@ class FileScannerTest {
                 result.getFindings()
                         .stream()
                         .anyMatch(finding ->
-                                finding.contains("line 3"))
+                                finding.getMessage().contains("line 3"))
         );
     }
 
@@ -220,7 +220,7 @@ class FileScannerTest {
         assertNotEquals(ScanResult.Status.CLEAN, result.getStatus(),
                 "A binary file with an embedded fake secret must not be labeled clean");
         assertTrue(result.getFindings().stream()
-                        .anyMatch(f -> f.toLowerCase().contains("binary")),
+                        .anyMatch(f -> f.getMessage().toLowerCase().contains("binary")),
                 "Finding should mention binary detection");
     }
 

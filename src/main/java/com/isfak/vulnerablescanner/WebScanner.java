@@ -152,10 +152,10 @@ public class WebScanner {
         InetAddress targetAddress = addresses[0];
         String scheme = uri.getScheme().toLowerCase(Locale.ROOT);
 
-        List<String> findings = new ArrayList<>();
+        List<Finding> findings = new ArrayList<>();
 
         if ("http".equals(scheme)) {
-            findings.add("Site is served over plain HTTP — traffic is not encrypted.");
+            findings.add(new Finding("Site is served over plain HTTP — traffic is not encrypted.", Finding.Type.INSECURE_HTTP));
         }
 
         int port = uri.getPort();
@@ -208,21 +208,21 @@ public class WebScanner {
             try (ClassicHttpResponse response = client.executeOpen(target, request, null)) {
 
                 checkResponseHeader(response, "Content-Security-Policy", findings,
-                        "Missing Content-Security-Policy header.");
+                        "Missing Content-Security-Policy header.", Finding.Type.MISSING_CSP);
                 checkResponseHeader(response, "X-Frame-Options", findings,
-                        "Missing X-Frame-Options header.");
+                        "Missing X-Frame-Options header.", Finding.Type.MISSING_FRAME_OPTIONS);
 
                 if ("https".equals(scheme)) {
                     checkResponseHeader(response, "Strict-Transport-Security", findings,
-                            "Missing Strict-Transport-Security header (HSTS).");
+                            "Missing Strict-Transport-Security header (HSTS).", Finding.Type.MISSING_HSTS);
                 }
 
                 checkResponseHeader(response, "X-Content-Type-Options", findings,
-                        "Missing X-Content-Type-Options header.");
+                        "Missing X-Content-Type-Options header.", Finding.Type.MISSING_CONTENT_TYPE_OPTIONS);
 
                 Header serverHeader = response.getFirstHeader("Server");
                 if (serverHeader != null && !serverHeader.getValue().isBlank()) {
-                    findings.add("Server header exposes software info: \"" + serverHeader.getValue() + "\"");
+                    findings.add(new Finding("Server header exposes software info: \"" + serverHeader.getValue() + "\"", Finding.Type.SERVER_DISCLOSURE));
                 }
             }
 
@@ -331,12 +331,12 @@ public class WebScanner {
     private static void checkResponseHeader(
             ClassicHttpResponse response,
             String headerName,
-            List<String> findings,
-            String message) {
+            List<Finding> findings,
+            String message, Finding.Type type) {
 
         Header h = response.getFirstHeader(headerName);
         if (h == null || h.getValue().isBlank()) {
-            findings.add(message);
+            findings.add(new Finding(message, type));
         }
     }
 }
