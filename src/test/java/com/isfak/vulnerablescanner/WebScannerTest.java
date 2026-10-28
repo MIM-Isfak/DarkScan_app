@@ -1,6 +1,7 @@
 package com.isfak.vulnerablescanner;
 
 import org.apache.hc.client5.http.DnsResolver;
+import org.apache.hc.client5.http.SystemDefaultDnsResolver;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -31,8 +32,13 @@ class WebScannerTest {
     // -----------------------------------------------------------------------
 
     private static DnsResolver stubResolver(String ip) {
-        return hostname -> new InetAddress[]{InetAddress.getByAddress(
-                hostname, parseIp(ip))};
+        return new SystemDefaultDnsResolver() {
+            @Override
+            public InetAddress[] resolve(String host) throws UnknownHostException {
+                return new InetAddress[]{InetAddress.getByAddress(
+                        host, parseIp(ip))};
+            }
+        };
     }
 
     /** Parse a dotted-quad string to a 4-byte array without DNS. */

@@ -167,7 +167,12 @@ public class WebScanner {
          *  - keeps redirects disabled
          *  - applies connect + read + overall timeouts
          */
-        DnsResolver lockedResolver = hostname -> new InetAddress[]{targetAddress};
+        DnsResolver lockedResolver = new SystemDefaultDnsResolver() {
+            @Override
+            public InetAddress[] resolve(String host) {
+                return new InetAddress[]{targetAddress};
+            }
+        };
 
         RequestConfig requestConfig = RequestConfig.custom()
                 .setConnectionRequestTimeout(Timeout.of(CONNECT_TIMEOUT_MS, TimeUnit.MILLISECONDS))
@@ -186,10 +191,8 @@ public class WebScanner {
                 .disableRedirectHandling()
                 .build()) {
 
-            HttpHost target = new HttpHost(scheme, targetAddress.getHostAddress(), port);
-            HttpGet request = new HttpGet(uri);
-            // Ensure the Host header matches the original hostname (not the IP).
-            request.setHeader("Host", normalizedHost + (uri.getPort() == -1 ? "" : ":" + uri.getPort()));
+    HttpHost target = new HttpHost(scheme, normalizedHost, port);
+    HttpGet request = new HttpGet(uri);
             request.setHeader("User-Agent", "DarkScan-Security-Scanner/1.0");
 
             long deadline = System.currentTimeMillis() + OVERALL_TIMEOUT_MS;
