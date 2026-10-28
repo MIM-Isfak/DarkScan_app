@@ -24,6 +24,10 @@ public class WebScanner {
             return ScanResult.error("No URL provided.");
         }
 
+        if (urlStr.length() > 2048) {
+            return ScanResult.error("Please enter a URL no longer than 2048 characters.");
+        }
+
         String normalized = urlStr.trim();
 
         // Add HTTPS automatically when the user does not specify a protocol
@@ -74,10 +78,16 @@ public class WebScanner {
             );
         }
 
+        if (host.length() > 253) {
+            return ScanResult.error("Please enter a hostname no longer than 253 characters.");
+        }
+
         // Normalize hostname
-        String normalizedHost = host
-                .toLowerCase(Locale.ROOT)
-                .replaceAll("\\.+$", "");
+        int hostEnd = host.length();
+        while (hostEnd > 0 && host.charAt(hostEnd - 1) == '.') {
+            hostEnd--;
+        }
+        String normalizedHost = host.substring(0, hostEnd).toLowerCase(Locale.ROOT);
 
         // Explicit localhost protection
         if (normalizedHost.equals("localhost")
