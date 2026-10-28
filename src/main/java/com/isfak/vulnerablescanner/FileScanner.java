@@ -3,6 +3,7 @@ package com.isfak.vulnerablescanner;
 import org.springframework.web.multipart.MultipartFile;
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -14,6 +15,7 @@ public class FileScanner {
 
     private static final long MAX_FILE_SIZE_BYTES = 10L * 1024 * 1024;
     private static final long MAX_CONTENT_SCAN_BYTES = 2L * 1024 * 1024;
+    private static final int BINARY_PROBE_BYTES = 8 * 1024;
 
     private static final String[] SENSITIVE_SUFFIXES = {
         ".env", ".git", "config.php", "id_rsa", ".pem", ".pfx", ".key"
@@ -67,6 +69,10 @@ public class FileScanner {
 
         if (file.getSize() > 0 && file.getSize() <= MAX_CONTENT_SCAN_BYTES) {
             try {
+                if (isBinary(file)) {
+                    findings.add("Binary file detected — content scanning skipped (not a text file).");
+                    return ScanResult.warning(filename, findings);
+                }
                 findings.addAll(scanContent(file));
             } catch (IOException e) {
                 findings.add("Could not read file content: " + e.getMessage());
@@ -79,6 +85,27 @@ public class FileScanner {
             return ScanResult.clean("No issues detected in \"" + filename + "\".");
         }
         return ScanResult.warning(filename, findings);
+    }
+
+    /**
+     * Returns true if the file appears to be binary by detecting a NUL byte
+     * in the first {@value #BINARY_PROBE_BYTES} bytes of content.
+     */
+    private static boolean isBinary(MultipartFile file) throws IOException {
+        try (InputStream in = file.getInputStream()) {
+            byte[] probe = new byte[BINARY_PROBE_BYTES];
+            int read = 0;
+            int n;
+            while (read < probe.length && (n = in.read(probe, read, probe.length - read)) != -1) {
+                read += n;
+            }
+            for (int i = 0; i < read; i++) {
+                if (probe[i] == 0) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     private static List<String> scanContent(MultipartFile file) throws IOException {
