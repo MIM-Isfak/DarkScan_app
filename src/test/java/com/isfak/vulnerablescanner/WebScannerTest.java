@@ -1,10 +1,38 @@
 package com.isfak.vulnerablescanner;
 
 import org.junit.jupiter.api.Test;
+import java.time.Duration;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class WebScannerTest {
+
+    @Test
+    void shouldRejectLongDotInputWithinOneSecond() {
+        String input = "http://a" + ".".repeat(100_000) + "b/";
+
+        ScanResult result = assertTimeoutPreemptively(Duration.ofSeconds(1),
+                () -> WebScanner.scanWebsite(input));
+
+        assertTrue(result.isError());
+        assertEquals("Please enter a URL no longer than 2048 characters.", result.getSummary());
+    }
+
+    @Test
+    void shouldRejectLongHostnameBeforeStrippingDots() {
+        ScanResult result = WebScanner.scanWebsite("http://localhost" + ".".repeat(245));
+
+        assertTrue(result.isError());
+        assertEquals("Please enter a hostname no longer than 253 characters.", result.getSummary());
+    }
+
+    @Test
+    void shouldStripTrailingDotsBeforeCheckingLocalhost() {
+        ScanResult result = WebScanner.scanWebsite("http://LOCALHOST...");
+
+        assertTrue(result.isError());
+        assertEquals("SSRF protection: localhost is not allowed.", result.getSummary());
+    }
 
     @Test
     void shouldRejectLocalhost() {
