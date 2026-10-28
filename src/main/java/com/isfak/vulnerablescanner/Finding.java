@@ -77,6 +77,7 @@ public final class Finding {
     }
 
     private final String message;
+    private final Type type;
     private final Severity severity;
     private final String fixTip;
     private final String explanation;
@@ -86,6 +87,7 @@ public final class Finding {
 
     public Finding(String message, Type type) {
         this.message = message;
+        this.type = type;
         this.severity = type.severity;
         this.fixTip = type.fixTip;
         this.explanation = type.explanation;
@@ -95,6 +97,7 @@ public final class Finding {
     }
 
     public String getMessage() { return message; }
+    public Type getType() { return type; }
     public Severity getSeverity() { return severity; }
     public String getFixTip() { return fixTip; }
     public String getExplanation() { return explanation; }

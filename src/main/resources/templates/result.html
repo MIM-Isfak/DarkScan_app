@@ -152,7 +152,23 @@
         </div>
 
         <hr class="divider"/>
+        <button type="button" class="btn" id="download-json">Download JSON</button>
         <a href="/" class="btn">← New Scan</a>
     </div>
+    <script type="application/json" id="scan-report" th:utext="${reportJson}"></script>
+    <script type="text/javascript">
+        document.getElementById('download-json').addEventListener('click', function () {
+            const json = document.getElementById('scan-report').textContent;
+            const timestamp = JSON.parse(json).scanTimestamp.replace(/[:.]/g, '-');
+            const url = URL.createObjectURL(new Blob([json], { type: 'application/json' }));
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'darkscan-report-' + timestamp + '.json';
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+        });
+    </script>
 </body>
 </html>
