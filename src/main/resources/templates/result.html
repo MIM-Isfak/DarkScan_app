@@ -77,6 +77,16 @@
             font-size: 0.85rem;
             color: #c9d1d9;
         }
+        .severity { display: inline-block; padding: 2px 6px; border-radius: 4px; font-weight: bold; margin-right: 6px; }
+        .severity-CRITICAL { background: #b91c1c; color: #fff; }
+        .severity-HIGH { background: #f85149; color: #0d1117; }
+        .severity-MEDIUM { background: #d29922; color: #0d1117; }
+        .severity-LOW { background: #58a6ff; color: #0d1117; }
+        .severity-INFO { background: #8b949e; color: #0d1117; }
+        .finding-item details { margin-top: 8px; line-height: 1.5; overflow-wrap: anywhere; }
+        .finding-item summary { cursor: pointer; color: #58a6ff; }
+        .finding-item details p { margin-top: 8px; }
+        .finding-item a { color: #58a6ff; }
         .divider {
             border: none;
             border-top: 1px solid #21262d;
@@ -126,8 +136,19 @@
         <div th:if="${result.findings != null and !result.findings.isEmpty()}">
             <div class="findings-label">// findings</div>
             <div th:each="finding : ${result.findings}"
-                 class="finding-item"
-                 th:text="${finding}"></div>
+                 class="finding-item">
+                <span class="severity" th:classappend="'severity-' + ${finding.severity}"
+                      th:text="${finding.severity}"></span>
+                <span th:text="${finding.message}"></span>
+                <details>
+                    <summary>Explain</summary>
+                    <p th:text="${finding.explanation}"></p>
+                    <p><strong>Fix: </strong><span th:text="${finding.fixTip}"></span></p>
+                    <p><a th:href="'https://cwe.mitre.org/data/definitions/' + ${#strings.substringAfter(finding.cweId, 'CWE-')} + '.html'"
+                          th:text="${finding.cweId}"></a>
+                        · <a th:href="${finding.referenceUrl}" th:text="${finding.owaspCategory}"></a></p>
+                </details>
+            </div>
         </div>
 
         <hr class="divider"/>

@@ -53,32 +53,32 @@ public class FileScanner {
             filename = "(unnamed file)";
         }
 
-        List<String> findings = new ArrayList<>();
+        List<Finding> findings = new ArrayList<>();
 
         String lowerName = filename.toLowerCase();
         for (String suffix : SENSITIVE_SUFFIXES) {
             if (lowerName.endsWith(suffix)) {
-                findings.add("Filename suggests a sensitive file type (matched: \"" + suffix + "\")");
+                findings.add(new Finding("Filename suggests a sensitive file type (matched: \"" + suffix + "\")", Finding.Type.SENSITIVE_FILE));
                 break;
             }
         }
 
         if (file.getSize() > MAX_FILE_SIZE_BYTES) {
-            findings.add("File is larger than 10MB (" + (file.getSize() / (1024 * 1024)) + "MB)");
+            findings.add(new Finding("File is larger than 10MB (" + (file.getSize() / (1024 * 1024)) + "MB)", Finding.Type.OVERSIZED_FILE));
         }
 
         if (file.getSize() > 0 && file.getSize() <= MAX_CONTENT_SCAN_BYTES) {
             try {
                 if (isBinary(file)) {
-                    findings.add("Binary file detected — content scanning skipped (not a text file).");
+                    findings.add(new Finding("Binary file detected — content scanning skipped (not a text file).", Finding.Type.BINARY_FILE));
                     return ScanResult.warning(filename, findings);
                 }
                 findings.addAll(scanContent(file));
             } catch (IOException e) {
-                findings.add("Could not read file content: " + e.getMessage());
+                findings.add(new Finding("Could not read file content: " + e.getMessage(), Finding.Type.READ_FAILURE));
             }
         } else if (file.getSize() > MAX_CONTENT_SCAN_BYTES) {
-            findings.add("File too large to content-scan (limit 2MB) — filename/size checks only.");
+            findings.add(new Finding("File too large to content-scan (limit 2MB) — filename/size checks only.", Finding.Type.CONTENT_TOO_LARGE));
         }
 
         if (findings.isEmpty()) {
@@ -108,8 +108,8 @@ public class FileScanner {
         return false;
     }
 
-    private static List<String> scanContent(MultipartFile file) throws IOException {
-        List<String> findings = new ArrayList<>();
+    private static List<Finding> scanContent(MultipartFile file) throws IOException {
+        List<Finding> findings = new ArrayList<>();
         try (BufferedReader reader = new BufferedReader(
                 new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8))) {
             int lineNumber = 0;
@@ -119,7 +119,9 @@ public class FileScanner {
                 for (int i = 0; i < SECRET_PATTERNS.length; i++) {
                     Matcher matcher = SECRET_PATTERNS[i].matcher(line);
                     if (matcher.find()) {
-                        findings.add(SECRET_LABELS[i] + " found on line " + lineNumber);
+                        findings.add(new Finding(SECRET_LABELS[i] + " found on line " + lineNumber,
+                                i == 0 ? Finding.Type.AWS_ACCESS_KEY_ID
+                                        : i == 4 ? Finding.Type.PRIVATE_KEY : Finding.Type.SECRET));
                     }
                 }
             }
