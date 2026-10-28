@@ -23,7 +23,10 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class WebScanner {
 
@@ -180,6 +183,8 @@ public class WebScanner {
                 .setResponseTimeout(Timeout.of(READ_TIMEOUT_MS, TimeUnit.MILLISECONDS))
                 .build();
 
+        ScheduledExecutorService deadlineExecutor = Executors.newSingleThreadScheduledExecutor();
+        AtomicBoolean deadlineExceeded = new AtomicBoolean();
         try (CloseableHttpClient client = HttpClients.custom()
                 .setConnectionManager(
                     PoolingHttpClientConnectionManagerBuilder.create()
@@ -195,13 +200,12 @@ public class WebScanner {
     HttpGet request = new HttpGet(uri);
             request.setHeader("User-Agent", "DarkScan-Security-Scanner/1.0");
 
-            long deadline = System.currentTimeMillis() + OVERALL_TIMEOUT_MS;
+            deadlineExecutor.schedule(() -> {
+                deadlineExceeded.set(true);
+                request.abort();
+            }, OVERALL_TIMEOUT_MS, TimeUnit.MILLISECONDS);
 
             try (ClassicHttpResponse response = client.executeOpen(target, request, null)) {
-
-                if (System.currentTimeMillis() > deadline) {
-                    return ScanResult.error("Request exceeded overall 10s deadline.");
-                }
 
                 checkResponseHeader(response, "Content-Security-Policy", findings,
                         "Missing Content-Security-Policy header.");
@@ -223,7 +227,16 @@ public class WebScanner {
             }
 
         } catch (IOException e) {
+            if (deadlineExceeded.get()) {
+                return ScanResult.error("Request exceeded overall 10s deadline.");
+            }
             return ScanResult.error("Could not connect to " + urlStr + ": " + e.getMessage());
+        } finally {
+            deadlineExecutor.shutdownNow();
+        }
+
+        if (deadlineExceeded.get()) {
+            return ScanResult.error("Request exceeded overall 10s deadline.");
         }
 
         if (findings.isEmpty()) {
