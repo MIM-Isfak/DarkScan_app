@@ -42,6 +42,13 @@
 - Detects `Server` header information leakage
 - Includes SSRF protections that reject localhost, loopback, private network, link-local, and other restricted addresses before outbound requests
 
+### Results and Reporting
+
+- Every finding has a severity level (Critical, High, Medium, Low, Info), shown as a colour-coded badge
+- A collapsible "Explain" section for each finding describes what the issue is, how an attacker could abuse it, and how to fix it
+- Findings are mapped to a CWE identifier and an OWASP Top 10 (2021) category, with a reference link
+- Scan results can be downloaded as a JSON report. The report is generated from the existing result; the scan is not re-run and nothing is stored on the server
+
 ---
 
 ## Security fixes included
@@ -49,8 +56,16 @@
 | Issue | Fix |
 |---|---|
 | XSS via filename/URL in results | `th:text` auto-escaping with Thymeleaf |
+| XSS via the embedded JSON report | `&`, `<` and `>` are Unicode-escaped before embedding; covered by a unit test |
 | SSRF via user-supplied URL | URL validation, DNS resolution, restricted-address checks, and redirects disabled |
+| SSRF via DNS rebinding | DNS is resolved once, all addresses are validated, and the connection is pinned to the validated IP (TLS verification still uses the original hostname) |
+| Non-http(s) schemes | Rejected before any outbound request |
+| ReDoS in hostname validation | Regex replaced with a simple loop; URL length (2048) and hostname length (253) limits added |
+| Slow or hanging target sites | Overall 10-second scan deadline enforced by aborting the request |
+| Binary files reported as "clean" | Binary files now produce a "not scanned" warning |
 | Null filename crash | Null-safe check before processing |
+| Container running as root | Docker image runs as a non-root user |
+| Over-privileged CI token | GitHub Actions `GITHUB_TOKEN` restricted to `contents: read` |
 
 ---
 
@@ -58,10 +73,11 @@
 
 DarkScan includes automated tests for its core scanning and security behavior.
 
+- Finding metadata and JSON report tests (severity, CWE/OWASP mapping, safe JSON embedding)
 - File scanner unit tests
 - Web scanner SSRF/security tests
 - Spring Boot application context test
-- 15 automated tests currently passing
+- 51 automated tests currently passing
 - GitHub Actions CI runs the test suite on pushes and pull requests to `main`
 - Docker builds run the test suite before packaging the application
 
@@ -114,6 +130,19 @@ On Windows:
 
 ---
 
+## Run with Docker
+
+```bash
+docker build -t darkscan .
+docker run --rm -p 8080:8080 darkscan
+```
+
+Open → `http://localhost:8080`
+
+The container runs as a non-root user. The test suite runs during the image build.
+
+---
+
 ## Architecture
 
 ```text
@@ -124,7 +153,7 @@ HomeController (Spring MVC)
    ├──────────────────┐
 FileScanner      WebScanner
    └────────┬─────────┘
-         ScanResult
+      ScanResult / Finding
              │
    Thymeleaf (result.html)
 ```
@@ -136,7 +165,9 @@ FileScanner      WebScanner
 - Secret detection is regex-based and may miss obfuscated secrets
 - No persistent storage or user accounts
 - Website scanning focuses on selected HTTP security checks and is not a full security audit
-- SSRF protections mitigate common restricted-address targets but are not intended to provide complete protection against every DNS-rebinding scenario
+- Header checks do not consider context such as HSTS preload lists, so some findings may be informational for large sites
+- SSRF protections use DNS pinning, but the DNS lookup itself is not covered by the 10-second scan deadline, and no network-level egress filtering is applied
+- CWE and OWASP mappings are broad references and do not prove that a vulnerability is exploitable
 
 ---
 
